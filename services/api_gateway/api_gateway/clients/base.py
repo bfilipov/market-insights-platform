@@ -20,10 +20,6 @@ T = TypeVar("T")
 class BaseServiceClient(ABC, Generic[T]):
     """
     Abstract base class for service clients.
-
-    Implements the Template Method pattern, defining the skeleton
-    of the HTTP request flow while allowing subclasses to specify
-    specific details like endpoints and response parsing.
     """
 
     def __init__(self) -> None:
@@ -56,12 +52,10 @@ class BaseServiceClient(ABC, Generic[T]):
     @abstractmethod
     def _get_base_url(self) -> str:
         """Return the base URL for this service."""
-        ...
 
     @abstractmethod
     def _get_api_key(self) -> str:
         """Return the API key for this service."""
-        ...
 
     def _get_default_headers(self) -> Dict[str, str]:
         """Return default headers for all requests."""
@@ -111,4 +105,3 @@ class BaseServiceClient(ABC, Generic[T]):
         Returns:
             Parsed and typed response data
         """
-        ...
