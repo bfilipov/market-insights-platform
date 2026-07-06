@@ -1,6 +1,4 @@
-"""
-API Gateway Service - Main entry point.
-"""
+"""API Gateway Service — Main entry point."""
 
 import logging
 from contextlib import asynccontextmanager
@@ -11,9 +9,9 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from api_gateway.config import get_settings
+from api_gateway.routers.admin import router as admin_router
 from api_gateway.routers.market import router as market_router
 
-# Configure logging based on settings
 settings = get_settings()
 logging.basicConfig(
     level=getattr(logging, settings.log_level),
@@ -24,33 +22,22 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    """
-    Application lifespan handler.
-
-    Manages startup and shutdown events for proper resource cleanup.
-    """
+    """Application lifespan handler."""
     logger.info("Starting API Gateway service...")
 
     yield
 
     # Shutdown logic
     logger.info("Shutting down API Gateway service...")
-
-    # Clean up cached clients
     from api_gateway.dependencies import get_market_data_client
 
     market_client = get_market_data_client()
-
     await market_client.close()
-
-    # Clear the lru_cache to release references
     get_market_data_client.cache_clear()
 
 
 def create_app() -> FastAPI:
-    """
-    Application factory function.
-    """
+    """Application factory function."""
     app = FastAPI(
         title="Market Insights Platform - API Gateway",
         description="""
@@ -65,27 +52,34 @@ def create_app() -> FastAPI:
         ```
         Authorization: Bearer your-api-key
         ```
+
+        ## User Management
+
+        Admin endpoints under `/api/v1/admin` require a separate admin
+        API key (`API_GATEWAY_ADMIN_API_KEY`). Use these endpoints to
+        create, list, deactivate, and delete API users.
         """,
-        version="1.0.0",
+        version="2.0.0",
         lifespan=lifespan,
         docs_url="/docs",
         redoc_url="/redoc",
     )
 
-    # Include routers
     app.include_router(market_router)
+    app.include_router(admin_router)
 
-    # Custom exception handlers
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(
             request: Request,
             exc: RequestValidationError,
     ) -> JSONResponse:
-        """Handle request validation errors."""
         logger.warning(f"Validation error: {exc.errors()}")
         return JSONResponse(
             status_code=422,
-            content={"detail": "Invalid request parameters", "errors": exc.errors()},
+            content={
+                "detail": "Invalid request parameters",
+                "errors": exc.errors(),
+            },
         )
 
     @app.exception_handler(Exception)
@@ -93,7 +87,6 @@ def create_app() -> FastAPI:
             request: Request,
             exc: Exception,
     ) -> JSONResponse:
-        """Handle unexpected exceptions."""
         logger.exception(f"Unexpected error: {exc}")
         return JSONResponse(
             status_code=500,
@@ -103,7 +96,6 @@ def create_app() -> FastAPI:
     return app
 
 
-# Create the application instance
 app = create_app()
 
 if __name__ == "__main__":

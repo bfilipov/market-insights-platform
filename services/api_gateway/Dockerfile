@@ -29,11 +29,13 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 # Copy application code
 COPY api_gateway/ ./api_gateway/
 
-# Create a non-root user for security
-RUN useradd --create-home appuser
+# Create non-root user and data directory
+RUN useradd --create-home appuser \
+    && mkdir -p /data \
+    && chown appuser:appuser /data
+
 USER appuser
 
 EXPOSE 8000
 
-# Run using the module path
 CMD ["python", "-m", "api_gateway.main"]

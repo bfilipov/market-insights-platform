@@ -1,4 +1,5 @@
 from functools import lru_cache
+from typing import Optional
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -17,8 +18,15 @@ class ApiGatewaySettings(BaseSettings):
     api_gateway_host: str = Field(default="0.0.0.0", alias="API_GATEWAY_HOST")
     api_gateway_port: int = Field(default=8000, alias="API_GATEWAY_PORT")
 
-    # Authentication
-    api_gateway_api_key: str = Field(..., alias="API_GATEWAY_API_KEY")
+    # ---- Admin authentication (for user-management endpoints) ----
+    api_gateway_admin_api_key: str = Field(
+        ..., alias="API_GATEWAY_ADMIN_API_KEY"
+    )
+
+    # ---- User API keys file ----
+    api_keys_file: str = Field(
+        default="/data/users.json", alias="API_KEYS_FILE"
+    )
 
     # Service URLs
     market_data_service_url: str = Field(
@@ -49,22 +57,8 @@ class ApiGatewaySettings(BaseSettings):
             raise ValueError(f"Invalid log level: {v}. Must be one of {valid_levels}")
         return v_upper
 
-    @field_validator("api_gateway_api_key")
-    @classmethod
-    def validate_api_key_not_placeholder(cls, v: str) -> str:
-        """Ensure API key is not a placeholder value."""
-        placeholder_values = {"your-secure-api-key-here", "change-me", "placeholder"}
-        if v.lower() in placeholder_values:
-            raise ValueError("API key must be changed from placeholder value")
-        return v
-
 
 @lru_cache()
 def get_settings() -> ApiGatewaySettings:
-    """
-    Get cached settings instance (Singleton pattern).
-
-    Uses lru_cache to ensure settings are loaded and validated only once,
-    then shared across all calls.
-    """
+    """Get cached settings instance (Singleton pattern)."""
     return ApiGatewaySettings()

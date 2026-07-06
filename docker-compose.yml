@@ -10,14 +10,20 @@ services:
       - "8000:8000"
     environment:
       # Server
-      - API_GATEWAY_HOST=${API_GATEWAY_HOST}
-      - API_GATEWAY_PORT=${API_GATEWAY_PORT}
-      # Auth
-      - API_GATEWAY_API_KEY=${API_GATEWAY_API_KEY}
-      # Inter-service URLs (Uses Docker DNS)
-      - MARKET_DATA_SERVICE_URL=${MARKET_DATA_SERVICE_URL}
+      - API_GATEWAY_HOST=${API_GATEWAY_HOST:-0.0.0.0}
+      - API_GATEWAY_PORT=${API_GATEWAY_PORT:-8000}
+      # Admin key for user-management endpoints
+      - API_GATEWAY_ADMIN_API_KEY=${API_GATEWAY_ADMIN_API_KEY}
+      # Optional: seeds the first user's key on bootstrap
+      - API_GATEWAY_API_KEY=${API_GATEWAY_API_KEY:-}
+      # User store file
+      - API_KEYS_FILE=/data/users.json
+      # Inter-service URLs (Docker DNS)
+      - MARKET_DATA_SERVICE_URL=${MARKET_DATA_SERVICE_URL:-http://market_data:8001}
       - MARKET_DATA_INTERNAL_API_KEY=${MARKET_DATA_INTERNAL_API_KEY}
-      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./data:/data
     depends_on:
       - market_data
     networks:
@@ -32,20 +38,16 @@ services:
     ports:
       - "8001:8001"
     environment:
-      # Server
-      - MARKET_DATA_HOST=${MARKET_DATA_HOST}
-      - MARKET_DATA_PORT=${MARKET_DATA_PORT}
-      # Auth
+      - MARKET_DATA_HOST=${MARKET_DATA_HOST:-0.0.0.0}
+      - MARKET_DATA_PORT=${MARKET_DATA_PORT:-8001}
       - MARKET_DATA_INTERNAL_API_KEY=${MARKET_DATA_INTERNAL_API_KEY}
-      # Providers
       - MARKET_DATA_DEFAULT_PROVIDER=${MARKET_DATA_DEFAULT_PROVIDER:-coingecko}
-      - COINGECKO_BASE_URL=${COINGECKO_BASE_URL}
-      - COINCAP_BASE_URL=${COINCAP_BASE_URL}
+      - COINGECKO_BASE_URL=${COINGECKO_BASE_URL:-https://api.coingecko.com/api/v3}
+      - COINCAP_BASE_URL=${COINCAP_BASE_URL:-https://rest.coincap.io/v3}
       - COINCAP_API_KEY=${COINCAP_API_KEY}
-      # Http client
-      - MARKET_DATA_REQUEST_TIMEOUT=${MARKET_DATA_REQUEST_TIMEOUT}
-      - MARKET_DATA_MAX_RETRIES=${MARKET_DATA_MAX_RETRIES}
-      - LOG_LEVEL=${LOG_LEVEL}
+      - MARKET_DATA_REQUEST_TIMEOUT=${MARKET_DATA_REQUEST_TIMEOUT:-10.0}
+      - MARKET_DATA_MAX_RETRIES=${MARKET_DATA_MAX_RETRIES:-3}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
     networks:
       - backend_network
     restart: unless-stopped

@@ -1,0 +1,12 @@
+[
+  {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "name": "Default User",
+    "email": "admin@example.com",
+    "api_key": "REPLACE-WITH-YOUR-SECURE-API-KEY",
+    "is_active": true,
+    "created_at": "2025-01-01T00:00:00Z",
+    "expires_at": null,
+    "metadata": {}
+  }
+]
