@@ -3,6 +3,7 @@ Client for the Market Data Service.
 """
 
 import logging
+from typing import Optional, Dict, Any
 
 import httpx
 
@@ -28,12 +29,17 @@ class MarketDataClient(BaseServiceClient[MarketDataResponse]):
     def _get_api_key(self) -> str:
         return self._settings.market_data_internal_api_key
 
-    async def fetch_market_data(self, symbol: str) -> MarketDataResponse:
+    async def fetch_market_data(
+            self,
+            symbol: str,
+            provider: Optional[str] = None,
+    ) -> MarketDataResponse:
         """
         Fetch market data for a given symbol.
 
         Args:
             symbol: The asset symbol (e.g., 'bitcoin', 'ethereum')
+            provider: The market data provider (e.g., 'bitcoin', 'ethereum')
 
         Returns:
             Normalized market data response
@@ -43,8 +49,12 @@ class MarketDataClient(BaseServiceClient[MarketDataResponse]):
             ServiceUnavailableException: If the service is down
             ExternalServiceException: For other service errors
         """
+        params: Dict[str, Any] = {}
+        if provider:
+            params["provider"] = provider
+
         try:
-            data = await self._get(f"/api/v1/market/{symbol}")
+            data = await self._get(f"/api/v1/market/{symbol}", params=params)
             return MarketDataResponse(**data)
 
         except httpx.HTTPStatusError as e:

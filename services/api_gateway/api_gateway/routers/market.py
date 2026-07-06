@@ -3,8 +3,9 @@ Market data router.
 """
 
 import logging
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 
 from api_gateway.dependencies import get_market_service
 from api_gateway.exceptions import (
@@ -38,6 +39,10 @@ router = APIRouter(prefix="/api/v1", tags=["market"])
 )
 async def get_market_data(
         symbol: str,
+        provider: Optional[str] = Query(
+            None,
+            description="Override default data provider (e.g., 'coingecko', 'coincap')"
+        ),
         _api_key: str = Depends(validate_api_key),
         market_service: MarketService = Depends(get_market_service),
 ) -> MarketDataResponse:
@@ -46,6 +51,7 @@ async def get_market_data(
 
     Args:
         symbol: The cryptocurrency symbol (e.g., 'bitcoin', 'ethereum')
+        provider: Override default data provider (e.g., 'coingecko', 'coincap')
         _api_key: Validated API key (injected)
         market_service: Market service (injected)
 
@@ -56,7 +62,7 @@ async def get_market_data(
         HTTPException: For various error conditions
     """
     try:
-        return await market_service.get_market_data(symbol)
+        return await market_service.get_market_data(symbol, provider=provider)
     except AssetNotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
     except ServiceUnavailableException as e:
