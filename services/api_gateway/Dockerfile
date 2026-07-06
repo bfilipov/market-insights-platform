@@ -6,14 +6,14 @@ FROM python:3.12-slim AS builder
 WORKDIR /app
 
 # Install Poetry without creating a virtual environment inside Docker
-RUN pip install --no-cache-dir poetry==1.8.3
+RUN pip install --no-cache-dir poetry==2.4.1
 
 # Copy only dependency files first to leverage Docker cache
 COPY pyproject.toml poetry.lock ./
 
 # Install dependencies to the system python
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-dev --no-interaction --no-ansi --no-root
+    && poetry install --no-interaction --no-ansi --no-root
 
 # ==========================================
 # Stage 2: Runner
