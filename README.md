@@ -1,6 +1,13 @@
 # Market Insights Platform
 A microservices-based platform for fetching and normalizing cryptocurrency market data. The system consists of an API Gateway that handles external request authentication and a Market Data Service that integrates with third-party providers (CoinGecko, CoinCap).
 
+### External API Choices
+This platform integrates with two public cryptocurrency APIs:
+
+CoinGecko API: Chosen because it has a generous free tier and does not require an API key for basic market data queries.   
+CoinCap API: Used as a secondary provider. It requires a free API key, which aligns with the requirement to handle authenticated external integrations.   
+
+
 ### Prerequisites
 - Docker
 - Docker Compose
@@ -8,7 +15,7 @@ A microservices-based platform for fetching and normalizing cryptocurrency marke
 - Project Structure
 
 ### Project structure
-```aiignore
+```
 .
 ├── docker-compose.yml
 ├── .env.example
@@ -19,7 +26,7 @@ A microservices-based platform for fetching and normalizing cryptocurrency marke
     └── market_data/             # Internal data fetching service
 ```
 
-Configuration
+### Configuration
 
 1. Copy the example environment file:
     ```
@@ -64,18 +71,19 @@ The API Gateway will be available at http://localhost:8000.
 
     Market data endpoints require a valid user API key.    
 
-    Fetch market data for a specific asset:   
-
+    #### Fetch market data for a specific asset:
     ```
    curl http://localhost:8000/api/v1/market/bitcoin \
     -H "Authorization: Bearer YOUR_USER_API_KEY"
    ```
-   
-    Override the default data provider:
-
+    #### Override the default data provider:
     ```
     curl "http://localhost:8000/api/v1/market/bitcoin?provider=coincap" \
     -H "Authorization: Bearer YOUR_USER_API_KEY"
+   ```
+   #### Missing Authentication (Expected: 401)
+    ```
+    curl http://localhost:8000/api/v1/market/bitcoin
    ```
 
 ### Running Tests
