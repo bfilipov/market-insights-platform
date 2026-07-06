@@ -35,10 +35,6 @@ class ApiGatewaySettings(BaseSettings):
         ...,
         alias="MARKET_DATA_INTERNAL_API_KEY",
     )
-    market_signal_internal_api_key: str = Field(
-        ...,
-        alias="MARKET_SIGNAL_INTERNAL_API_KEY",
-    )
 
     # Logging
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
