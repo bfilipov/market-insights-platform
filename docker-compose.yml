@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  api_gateway:
+    build:
+      context: ./services/api_gateway
+      dockerfile: Dockerfile
+    container_name: api_gateway_service
+    ports:
+      - "8000:8000"
+    environment:
+      # Server
+      - API_GATEWAY_HOST=${API_GATEWAY_HOST}
+      - API_GATEWAY_PORT=${API_GATEWAY_PORT}
+      # Auth
+      - API_GATEWAY_API_KEY=${API_GATEWAY_API_KEY}
+      # Inter-service URLs (Uses Docker DNS)
+      - MARKET_DATA_SERVICE_URL=${MARKET_DATA_SERVICE_URL}
+      - MARKET_DATA_INTERNAL_API_KEY=${MARKET_DATA_INTERNAL_API_KEY}
+      - LOG_LEVEL=${LOG_LEVEL}
+    depends_on:
+      - market_data
+    networks:
+      - backend_network
+    restart: unless-stopped
+
+  market_data:
+    build:
+      context: ./services/market_data
+      dockerfile: Dockerfile
+    container_name: market_data_service
+    ports:
+      - "8001:8001"
+    environment:
+      # Server
+      - MARKET_DATA_HOST=${MARKET_DATA_HOST}
+      - MARKET_DATA_PORT=${MARKET_DATA_PORT}
+      # Auth
+      - MARKET_DATA_INTERNAL_API_KEY=${MARKET_DATA_INTERNAL_API_KEY}
+      # Providers
+      - MARKET_DATA_DEFAULT_PROVIDER=${MARKET_DATA_DEFAULT_PROVIDER:-coingecko}
+      - COINGECKO_BASE_URL=${COINGECKO_BASE_URL}
+      - COINCAP_BASE_URL=${COINCAP_BASE_URL}
+      - COINCAP_API_KEY=${COINCAP_API_KEY}
+      # Http client
+      - MARKET_DATA_REQUEST_TIMEOUT=${MARKET_DATA_REQUEST_TIMEOUT}
+      - MARKET_DATA_MAX_RETRIES=${MARKET_DATA_MAX_RETRIES}
+      - LOG_LEVEL=${LOG_LEVEL}
+    networks:
+      - backend_network
+    restart: unless-stopped
+
+networks:
+  backend_network:
+    driver: bridge
