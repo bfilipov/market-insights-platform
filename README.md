@@ -40,6 +40,28 @@ CoinCap API: Used as a secondary provider. It requires a free API key, which ali
     COINCAP_API_KEY: Your API key for the CoinCap service.
     ```
 
+### Authentication model
+
+The API Gateway uses two kinds of API keys:
+
+1. Admin API key
+
+   `API_GATEWAY_ADMIN_API_KEY`
+
+   This key is configured through `.env` and is used only for user-management endpoints under `/api/v1/admin`.
+
+2. User API keys
+
+   User API keys are used by clients calling `/api/v1/market/*`.
+
+   User keys can be created in two ways:
+
+   - Recommended: call `POST /api/v1/admin/users` with the admin key.
+   - Optional local bootstrap: set `API_GATEWAY_BOOTSTRAP_USER_API_KEY` before first startup. If `data/users.json` is empty, the API Gateway creates one initial user with this key.
+
+The bootstrap key is only used when the user store is empty. Once `data/users.json` exists, changing `API_GATEWAY_BOOTSTRAP_USER_API_KEY` does not rotate existing users. Use the admin regenerate endpoint for key rotation.
+
+
 ### Running the Application
 Start all services using Docker Compose:   
 ```

@@ -28,6 +28,16 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan handler."""
     logger.info("Starting API Gateway service...")
 
+    from api_gateway.dependencies import get_user_store
+    bootstrap_key = settings.api_gateway_bootstrap_user_api_key
+    if bootstrap_key:
+        user_store = get_user_store()
+        user_store.bootstrap_user(
+            api_key=bootstrap_key,
+            name=settings.api_gateway_bootstrap_user_name,
+            email=settings.api_gateway_bootstrap_user_email,
+        )
+
     yield
 
     # Shutdown logic

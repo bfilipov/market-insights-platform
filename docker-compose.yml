@@ -23,6 +23,10 @@ services:
       - SERVICES_INTERNAL_API_KEY=${SERVICES_INTERNAL_API_KEY}
       - MARKET_SIGNAL_SERVICE_URL=${MARKET_SIGNAL_SERVICE_URL}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      # Optional: Seeds the first regular API user if /data/users.json is empty
+      - API_GATEWAY_BOOTSTRAP_USER_API_KEY=${API_GATEWAY_BOOTSTRAP_USER_API_KEY:-}
+      - API_GATEWAY_BOOTSTRAP_USER_NAME=${API_GATEWAY_BOOTSTRAP_USER_NAME:-Local Bootstrap User}
+      - API_GATEWAY_BOOTSTRAP_USER_EMAIL=${API_GATEWAY_BOOTSTRAP_USER_EMAIL:-bootstrap@example.com}
     volumes:
       - ./data:/data
     depends_on:
@@ -58,8 +62,6 @@ services:
       context: ./services/market_signal
       dockerfile: Dockerfile
     container_name: market_signal_service
-    ports:
-      - "8002:8002"
     environment:
       - MARKET_SIGNAL_HOST=0.0.0.0
       - MARKET_SIGNAL_PORT=8002

@@ -182,3 +182,44 @@ class UserStore:
                 logger.info(f"Regenerated API key for user id={user_id}")
                 return user
         return None
+
+    def bootstrap_user(
+            self,
+            *,
+            api_key: str,
+            name: str,
+            email: Optional[str] = None,
+    ) -> Optional[User]:
+        """
+        Create the initial API user from an environment-provided key.
+
+        Bootstrap is intentionally conservative:
+        - it only runs when the user store is empty;
+        - it never overwrites existing users;
+        - it never logs the API key;
+        - it exists only to simplify first local startup.
+        """
+        self._maybe_reload()
+
+        if not api_key:
+            return None
+
+        if self._users:
+            logger.info("Skipping API user bootstrap; user store is not empty")
+            return None
+
+        user = User(
+            id=str(uuid.uuid4()),
+            name=name,
+            email=email,
+            api_key=api_key,
+            is_active=True,
+            expires_at=None,
+            metadata={"created_by": "bootstrap"},
+        )
+
+        self._users.append(user)
+        self._save()
+
+        logger.info("Bootstrapped initial API user from environment")
+        return user

@@ -46,6 +46,22 @@ class ApiGatewaySettings(BaseSettings):
     # Logging
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
 
+    # --- Optional first user bootstrap ---
+    api_gateway_bootstrap_user_api_key: str | None = Field(
+        default=None,
+        alias="API_GATEWAY_BOOTSTRAP_USER_API_KEY",
+    )
+
+    api_gateway_bootstrap_user_name: str | None = Field(
+        default=None,
+        alias="API_GATEWAY_BOOTSTRAP_USER_NAME",
+    )
+
+    api_gateway_bootstrap_user_email: str | None = Field(
+        default=None,
+        alias="API_GATEWAY_BOOTSTRAP_USER_EMAIL",
+    )
+
     @field_validator("log_level")
     @classmethod
     def validate_log_level(cls, v: str) -> str:
