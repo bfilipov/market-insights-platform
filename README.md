@@ -23,7 +23,8 @@ CoinCap API: Used as a secondary provider. It requires a free API key, which ali
 │   └── users.json               # Auto-generated API user credentials
 └── services/
     ├── api_gateway/             # Public-facing REST API
-    └── market_data/             # Internal data fetching service
+    ├── market_data/             # Internal data fetching service
+    └── market_signal/           # Rule-based market signal generation
 ```
 
 ### Configuration
@@ -35,7 +36,7 @@ CoinCap API: Used as a secondary provider. It requires a free API key, which ali
 2. Edit the .env file and set the required variables:
     ```
     API_GATEWAY_ADMIN_API_KEY: Secret key used to manage API users.
-    MARKET_DATA_INTERNAL_API_KEY: Shared secret for internal service-to-service communication.
+    SERVICES_INTERNAL_API_KEY: Shared secret for internal service-to-service communication.
     COINCAP_API_KEY: Your API key for the CoinCap service.
     ```
 
@@ -81,6 +82,34 @@ The API Gateway will be available at http://localhost:8000.
     curl "http://localhost:8000/api/v1/market/bitcoin?provider=coincap" \
     -H "Authorization: Bearer YOUR_USER_API_KEY"
    ```
+   
+    #### Fetch market data with rule-based signals:
+    ```
+    curl "http://localhost:8000/api/v1/market/bitcoin/insights" \
+    -H "Authorization: Bearer YOUR_USER_API_KEY"
+   ```   
+
+   #### Example response: 
+    ```
+    {
+      "symbol": "bitcoin",
+      "name": "Bitcoin",
+      "current_price_usd": 43250.75,
+      "market_cap_usd": 847500000000,
+      "price_change_24h_usd": 1250.50,
+      "price_change_percentage_24h": 2.97,
+      "high_24h_usd": 44000.00,
+      "low_24h_usd": 42000.00,
+      "last_updated": "2025-01-01T12:00:00Z",
+      "data_source": "coingecko",
+      "market_signal": {
+        "signal": "bullish",
+        "rule_description": "24h change is +2.97% (> +2%)"
+      },
+      "disclaimer": "Rule-based indicator, not financial advice."
+    }
+   ```
+   
    #### Missing Authentication (Expected: 401)
     ```
     curl http://localhost:8000/api/v1/market/bitcoin
