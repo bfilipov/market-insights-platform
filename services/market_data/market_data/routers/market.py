@@ -24,7 +24,7 @@ def validate_internal_api_key(
         authorization: Optional[str] = Header(None),
 ) -> bool:
     settings = get_settings()
-    if not authorization or authorization.split(" ", 1)[-1] != settings.market_data_internal_api_key:
+    if not authorization or authorization.split(" ", 1)[-1] != settings.services_internal_api_key:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing API key")
     return True
 

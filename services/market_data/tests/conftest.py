@@ -5,7 +5,7 @@ import pytest
 from httpx import AsyncClient, ASGITransport
 
 # Set test environment variables BEFORE importing app modules
-os.environ["MARKET_DATA_INTERNAL_API_KEY"] = "test-internal-key"
+os.environ["SERVICES_INTERNAL_API_KEY"] = "test-internal-key"
 os.environ["COINCAP_API_KEY"] = "test-coincap-key"
 os.environ["MARKET_DATA_DEFAULT_PROVIDER"] = "coingecko"
 os.environ["LOG_LEVEL"] = "DEBUG"

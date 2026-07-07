@@ -1,5 +1,4 @@
 from functools import lru_cache
-from typing import Optional
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -39,9 +38,9 @@ class ApiGatewaySettings(BaseSettings):
     )
 
     # Internal service authentication
-    market_data_internal_api_key: str = Field(
+    services_internal_api_key: str = Field(
         ...,
-        alias="MARKET_DATA_INTERNAL_API_KEY",
+        alias="SERVICES_INTERNAL_API_KEY",
     )
 
     # Logging

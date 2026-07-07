@@ -15,3 +15,12 @@ class BaseAdapter(ABC):
         Transform raw external API data into the internal schema.
         """
         ...
+
+    def _safe_float(self, value: str | None) -> float | None:
+        """Safely convert string numbers to float."""
+        if not value:
+            return None
+        try:
+            return float(value)
+        except ValueError:
+            return None

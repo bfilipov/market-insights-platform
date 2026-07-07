@@ -3,6 +3,7 @@
 from functools import lru_cache
 
 from api_gateway.clients.market_data_client import MarketDataClient
+from api_gateway.clients.market_signal_client import MarketSignalClient
 from api_gateway.config import get_settings
 from api_gateway.services.market_service import MarketService
 from api_gateway.stores.user_store import UserStore
@@ -22,7 +23,12 @@ def get_market_data_client() -> MarketDataClient:
 
 
 def get_market_service() -> MarketService:
-    """Get a Market Service instance with dependencies injected."""
     return MarketService(
         market_data_client=get_market_data_client(),
+        market_signal_client=get_market_signal_client(),
     )
+
+
+@lru_cache()
+def get_market_signal_client() -> MarketSignalClient:
+    return MarketSignalClient()

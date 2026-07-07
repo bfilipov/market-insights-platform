@@ -10,7 +10,7 @@ os.environ["API_GATEWAY_PORT"] = "8000"
 os.environ["API_GATEWAY_ADMIN_API_KEY"] = "test-admin-key"
 os.environ["API_KEYS_FILE"] = "/tmp/test_users.json"  # Overridden per-test
 os.environ["MARKET_DATA_SERVICE_URL"] = "http://localhost:8001"
-os.environ["MARKET_DATA_INTERNAL_API_KEY"] = "test-internal-key"
+os.environ["SERVICES_INTERNAL_API_KEY"] = "test-internal-key"
 os.environ["LOG_LEVEL"] = "DEBUG"
 
 from api_gateway.config import get_settings  # noqa: E402

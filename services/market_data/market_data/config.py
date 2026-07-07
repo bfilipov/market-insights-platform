@@ -30,7 +30,7 @@ class MarketDataConfig(BaseSettings):
     market_data_port: int = Field(8001, alias="MARKET_DATA_PORT")
 
     # Internal Authentication
-    market_data_internal_api_key: str = Field(..., alias="MARKET_DATA_INTERNAL_API_KEY")
+    services_internal_api_key: str = Field(..., alias="SERVICES_INTERNAL_API_KEY")
 
     # Provider Configuration
     market_data_default_provider: DataProvider = Field(

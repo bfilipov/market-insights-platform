@@ -27,7 +27,7 @@ class MarketDataClient(BaseServiceClient[MarketDataResponse]):
         return self._settings.market_data_service_url
 
     def _get_api_key(self) -> str:
-        return self._settings.market_data_internal_api_key
+        return self._settings.services_internal_api_key
 
     async def fetch_market_data(
             self,

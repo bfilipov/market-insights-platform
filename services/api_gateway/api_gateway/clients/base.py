@@ -95,6 +95,20 @@ class BaseServiceClient(ABC, Generic[T]):
 
         return response.json()
 
+    @retry(
+        retry=retry_if_exception_type(httpx.ConnectError),
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=0.5, min=1, max=10),
+        reraise=True,
+    )
+    async def _post(self, path: str, json: Dict[str, Any] | None = None) -> Dict[str, Any]:
+        await self._ensure_client()
+        url = f"{self._get_base_url()}{path}"
+        logger.debug(f"Making POST request to {url}")
+        response = await self._client.post(url, json=json)  # type: ignore
+        response.raise_for_status()
+        return response.json()
+
     @abstractmethod
     async def fetch(self, **kwargs) -> T:
         """

@@ -5,7 +5,12 @@ Response models for the API Gateway.
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_serializer
+
+
+class MarketSignal(BaseModel):
+    signal: str = Field(..., description="Rule-based signal: bullish, bearish, or neutral")
+    rule_description: str = Field(..., description="Description of the rule applied")
 
 
 class MarketDataResponse(BaseModel):
@@ -27,6 +32,13 @@ class MarketDataResponse(BaseModel):
     last_updated: Optional[datetime] = Field(None, description="Last data update timestamp")
     data_source: str = Field(..., description="Source of the market data")
 
+    @field_serializer("price_change_percentage_24h")
+    def serialize_percentage(self, value: Optional[float]) -> Optional[float]:
+        if value is None:
+            return None
+        # Round to 2 decimal places
+        return round(value, 2)
+
     model_config = {
         "json_schema_extra": {
             "examples": [
@@ -43,6 +55,12 @@ class MarketDataResponse(BaseModel):
     }
 
 
+class MarketInsightsResponse(MarketDataResponse):
+    """Extended response including market signals."""
+    market_signal: Optional[MarketSignal] = Field(None, description="Rule-based market signal")
+    disclaimer: Optional[str] = Field(None, description="Disclaimer regarding the signal")
+
+
 class ErrorResponse(BaseModel):
     """Standard error response format."""
 
@@ -56,4 +74,4 @@ class HealthResponse(BaseModel):
     status: str = Field(..., description="Service status")
     service: str = Field(..., description="Service name")
     version: str = Field(..., description="Service version")
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=datetime.now)

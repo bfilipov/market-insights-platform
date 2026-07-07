@@ -7,7 +7,7 @@ class MarketSignalConfig(BaseSettings):
 
     market_signal_host: str = Field("0.0.0.0", alias="MARKET_SIGNAL_HOST")
     market_signal_port: int = Field(8002, alias="MARKET_SIGNAL_PORT")
-    market_signal_internal_api_key: str = Field(..., alias="MARKET_DATA_INTERNAL_API_KEY")
+    market_signal_internal_api_key: str = Field(..., alias="SERVICES_INTERNAL_API_KEY")
     log_level: str = Field("INFO", alias="LOG_LEVEL")
 
 

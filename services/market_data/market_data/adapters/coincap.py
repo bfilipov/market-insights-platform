@@ -43,15 +43,6 @@ class CoinCapAdapter(BaseAdapter):
             data_source="coincap",
         )
 
-    def _safe_float(self, value: str | None) -> float | None:
-        """Safely convert string numbers to float."""
-        if not value:
-            return None
-        try:
-            return float(value)
-        except ValueError:
-            return None
-
     def _parse_timestamp(self, ts_ms: int | None) -> datetime | None:
         if not ts_ms:
             return None

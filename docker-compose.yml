@@ -20,7 +20,8 @@ services:
       - API_KEYS_FILE=/data/users.json
       # Inter-service URLs (Docker DNS)
       - MARKET_DATA_SERVICE_URL=${MARKET_DATA_SERVICE_URL:-http://market_data:8001}
-      - MARKET_DATA_INTERNAL_API_KEY=${MARKET_DATA_INTERNAL_API_KEY}
+      - SERVICES_INTERNAL_API_KEY=${SERVICES_INTERNAL_API_KEY}
+      - MARKET_SIGNAL_SERVICE_URL=${MARKET_SIGNAL_SERVICE_URL}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     volumes:
       - ./data:/data
@@ -40,7 +41,7 @@ services:
     environment:
       - MARKET_DATA_HOST=${MARKET_DATA_HOST:-0.0.0.0}
       - MARKET_DATA_PORT=${MARKET_DATA_PORT:-8001}
-      - MARKET_DATA_INTERNAL_API_KEY=${MARKET_DATA_INTERNAL_API_KEY}
+      - SERVICES_INTERNAL_API_KEY=${SERVICES_INTERNAL_API_KEY}
       - MARKET_DATA_DEFAULT_PROVIDER=${MARKET_DATA_DEFAULT_PROVIDER:-coingecko}
       - COINGECKO_BASE_URL=${COINGECKO_BASE_URL:-https://api.coingecko.com/api/v3}
       - COINCAP_BASE_URL=${COINCAP_BASE_URL:-https://rest.coincap.io/v3}
@@ -48,6 +49,22 @@ services:
       - MARKET_DATA_REQUEST_TIMEOUT=${MARKET_DATA_REQUEST_TIMEOUT:-10.0}
       - MARKET_DATA_MAX_RETRIES=${MARKET_DATA_MAX_RETRIES:-3}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    networks:
+      - backend_network
+    restart: unless-stopped
+
+  market_signal:
+    build:
+      context: ./services/market_signal
+      dockerfile: Dockerfile
+    container_name: market_signal_service
+    ports:
+      - "8002:8002"
+    environment:
+      - MARKET_SIGNAL_HOST=0.0.0.0
+      - MARKET_SIGNAL_PORT=8002
+      - SERVICES_INTERNAL_API_KEY=${SERVICES_INTERNAL_API_KEY}
+      - LOG_LEVEL=${LOG_LEVEL}
     networks:
       - backend_network
     restart: unless-stopped
