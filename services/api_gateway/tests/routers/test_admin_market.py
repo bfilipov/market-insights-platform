@@ -94,8 +94,15 @@ async def test_market_fails_with_inactive_user_key(client, user_store):
     assert response.status_code == 401
 
 
-async def test_health_check_works_without_auth(client):
-    response = await client.get("/api/v1/health")
+async def test_health_check_do_not_work_without_auth(client):
+    response = await client.get("/health")
+    assert response.status_code == 401
+
+
+async def test_health_check_works(client, user_store):
+    user = user_store.add_user(name="Market User")
+    headers = {"Authorization": f"Bearer {user.api_key}"}
+    response = await client.get("/health", headers=headers)
     assert response.status_code == 200
     assert response.json()["status"] == "healthy"
 

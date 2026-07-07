@@ -1,18 +1,15 @@
 """API Gateway Service — Main entry point."""
-import datetime
 import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from api_gateway.config import get_settings
-from api_gateway.middleware.auth import validate_api_key
-from api_gateway.models.responses import HealthResponse
-from api_gateway.models.user import User
 from api_gateway.routers.admin import router as admin_router
+from api_gateway.routers.health import router as health_router
 from api_gateway.routers.market import router as market_router
 
 settings = get_settings()
@@ -80,6 +77,7 @@ def create_app() -> FastAPI:
 
     app.include_router(market_router)
     app.include_router(admin_router)
+    app.include_router(health_router)
 
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(
@@ -110,27 +108,6 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
-
-
-@app.get(
-    "/health",
-    response_model=HealthResponse,
-    tags=["health"],
-    summary="Health check",
-)
-async def health_check(
-        # All endpoints in Service A must require a valid API key supplied as a bearer token: Authorization: Bearer
-        # <key>.
-        current_user: User = Depends(validate_api_key), #
-) -> HealthResponse:
-    """Health check endpoint — no authentication required."""
-    return HealthResponse(
-        status="healthy",
-        service="api-gateway",
-        version="0.1.0",
-        timestamp=datetime.datetime.now(datetime.UTC)
-    )
-
 
 if __name__ == "__main__":
     import uvicorn

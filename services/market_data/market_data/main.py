@@ -11,6 +11,7 @@ from fastapi.responses import JSONResponse
 
 from market_data.config import get_settings
 from market_data.routers.market import router as market_router
+from market_data.routers.health import router as health_router
 
 settings = get_settings()
 logging.basicConfig(
@@ -35,6 +36,7 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
     app.include_router(market_router)
+    app.include_router(health_router)
 
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(request, exc):
@@ -44,16 +46,6 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
-
-
-@app.get("/health", tags=["health"])
-async def health_check():
-    return {
-        "status": "healthy",
-        "service": "market-data",
-        "version": "0.1.0",
-        "timestamp": datetime.datetime.now(datetime.UTC)
-    }
 
 
 if __name__ == "__main__":

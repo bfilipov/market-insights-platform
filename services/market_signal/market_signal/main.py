@@ -1,4 +1,3 @@
-import datetime
 import logging
 from contextlib import asynccontextmanager
 
@@ -7,6 +6,7 @@ from fastapi.exceptions import RequestValidationError
 from starlette.responses import JSONResponse
 
 from market_signal.config import get_settings
+from market_signal.routers.health import router as health_router
 from market_signal.routers.signal import router as signal_router
 
 settings = get_settings()
@@ -29,6 +29,7 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
     app.include_router(signal_router)
+    app.include_router(health_router)
 
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(request, exc):
@@ -38,17 +39,6 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
-
-
-@app.get("/health", tags=["health"])
-async def health_check():
-    return {
-        "status": "healthy",
-        "service": "market-signal",
-        "version": "0.1.0",
-        "timestamp": datetime.datetime.now(datetime.UTC)
-    }
-
 
 if __name__ == "__main__":
     import uvicorn
