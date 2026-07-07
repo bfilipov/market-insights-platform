@@ -3,9 +3,8 @@
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
-from market_data.config import get_settings
 from market_data.enums import DataProvider
 from market_data.exceptions import (
     AssetNotFoundException,
@@ -13,20 +12,12 @@ from market_data.exceptions import (
     UnsupportedProviderException,
 )
 from market_data.models.internal import InternalMarketDataResponse
+from market_data.security import validate_internal_api_key
 from market_data.services.market_data_service import MarketDataService
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1", tags=["market"])
-
-
-def validate_internal_api_key(
-        authorization: Optional[str] = Header(None),
-) -> bool:
-    settings = get_settings()
-    if not authorization or authorization.split(" ", 1)[-1] != settings.services_internal_api_key:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing API key")
-    return True
 
 
 def get_market_data_service() -> MarketDataService:

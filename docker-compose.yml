@@ -40,8 +40,8 @@ services:
       context: ./services/market_data
       dockerfile: Dockerfile
     container_name: market_data_service
-    ports:
-      - "8001:8001"
+    expose:
+      - "8001"
     environment:
       - MARKET_DATA_HOST=${MARKET_DATA_HOST:-0.0.0.0}
       - MARKET_DATA_PORT=${MARKET_DATA_PORT:-8001}
@@ -62,6 +62,8 @@ services:
       context: ./services/market_signal
       dockerfile: Dockerfile
     container_name: market_signal_service
+    expose:
+      - "8002"
     environment:
       - MARKET_SIGNAL_HOST=0.0.0.0
       - MARKET_SIGNAL_PORT=8002
