@@ -11,7 +11,7 @@ CoinCap API: Used as a secondary provider. It requires a free API key, which ali
 ### Prerequisites
 - Docker
 - Docker Compose
-= Python 3.12+ and Poetry (optional, for running tests locally)
+- Python 3.12+ and Poetry (optional, for running tests locally)
 - Project Structure
 
 ### Project structure
@@ -107,7 +107,7 @@ The API Gateway will be available at http://localhost:8000.
     -H "Authorization: Bearer YOUR_USER_API_KEY"
    ```
    
-    #### Exaple request with Asset Id instead of symbol:
+    #### Example request with Asset Id instead of symbol:
     ```
    curl http://localhost:8000/api/v1/market/bitcoin \
     -H "Authorization: Bearer YOUR_USER_API_KEY"
@@ -155,17 +155,20 @@ Unit tests for the API Gateway are included to verify API key management and rou
 
 To run tests locally:
 
-1. Navigate to the service directory, e.g:
-
+1. Navigate to each service directory and install the services with their dependencies:
     ```
-    cd services/api_gateway
-    ```
-   
-2. Install dependencies:
-    ```
-    poetry install
-   ```
-3. Execute the test suite:
-    ```
+    PROJECT_ROOT=$(pwd)
+    cd $PROJECT_ROOT/services/api_gateway
+    poetry install # only run once
     poetry run pytest
+    ```
    ```
+    cd $PROJECT_ROOT/services/market_data
+    poetry install # only run once
+    poetry run pytest
+    ```
+   ```
+    cd $PROJECT_ROOT/services/market_signal
+    poetry install # only run once
+    poetry run pytest
+    ```
