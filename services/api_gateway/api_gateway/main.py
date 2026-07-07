@@ -109,7 +109,9 @@ app = create_app()
     summary="Health check",
 )
 async def health_check(
-        current_user: User = Depends(validate_api_key),
+        # All endpoints in Service A must require a valid API key supplied as a bearer token: Authorization: Bearer
+        # <key>.
+        current_user: User = Depends(validate_api_key), #
 ) -> HealthResponse:
     """Health check endpoint — no authentication required."""
     return HealthResponse(
