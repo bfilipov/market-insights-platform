@@ -1,6 +1,5 @@
 """Market data router."""
 
-import datetime
 import logging
 from typing import Optional
 
@@ -13,7 +12,7 @@ from api_gateway.exceptions import (
     ServiceUnavailableException,
 )
 from api_gateway.middleware.auth import validate_api_key
-from api_gateway.models.responses import HealthResponse, MarketDataResponse, MarketInsightsResponse
+from api_gateway.models.responses import MarketDataResponse, MarketInsightsResponse
 from api_gateway.models.user import User
 from api_gateway.services.market_service import MarketService
 
@@ -101,19 +100,3 @@ async def get_market_insights(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected error occurred",
         )
-
-
-@router.get(
-    "/health",
-    response_model=HealthResponse,
-    tags=["health"],
-    summary="Health check",
-)
-async def health_check() -> HealthResponse:
-    """Health check endpoint — no authentication required."""
-    return HealthResponse(
-        status="healthy",
-        service="api-gateway",
-        version="1.0.0",
-        timestamp=datetime.datetime.now(datetime.UTC)
-    )

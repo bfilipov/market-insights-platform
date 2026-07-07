@@ -1,14 +1,17 @@
 """API Gateway Service — Main entry point."""
-
+import datetime
 import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from api_gateway.config import get_settings
+from api_gateway.middleware.auth import validate_api_key
+from api_gateway.models.responses import HealthResponse
+from api_gateway.models.user import User
 from api_gateway.routers.admin import router as admin_router
 from api_gateway.routers.market import router as market_router
 
@@ -46,7 +49,7 @@ def create_app() -> FastAPI:
 
         ## Authentication
 
-        All endpoints (except `/health`) require a valid API key
+        All endpoints require a valid API key
         passed as a Bearer token in the Authorization header.
 
         ```
@@ -97,6 +100,25 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
+
+
+@app.get(
+    "/health",
+    response_model=HealthResponse,
+    tags=["health"],
+    summary="Health check",
+)
+async def health_check(
+        current_user: User = Depends(validate_api_key),
+) -> HealthResponse:
+    """Health check endpoint — no authentication required."""
+    return HealthResponse(
+        status="healthy",
+        service="api-gateway",
+        version="1.0.0",
+        timestamp=datetime.datetime.now(datetime.UTC)
+    )
+
 
 if __name__ == "__main__":
     import uvicorn
