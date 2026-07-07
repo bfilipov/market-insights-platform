@@ -26,7 +26,6 @@ class CoinCapClient(ResilientHttpClient):
         super().__init__(
             base_url=settings.coincap_base_url,
             timeout=settings.market_data_request_timeout,
-            max_retries=settings.market_data_max_retries,
             default_headers=headers
         )
 

@@ -20,7 +20,6 @@ class CoinGeckoClient(ResilientHttpClient):
         super().__init__(
             base_url=settings.coingecko_base_url,
             timeout=settings.market_data_request_timeout,
-            max_retries=settings.market_data_max_retries,
         )
 
     async def get_coin_data(self, coin_id: str) -> Dict[str, Any]:

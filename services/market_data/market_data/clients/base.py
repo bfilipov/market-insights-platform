@@ -13,8 +13,10 @@ from tenacity import (
     wait_exponential,
 )
 
-logger = logging.getLogger(__name__)
+from market_data.config import get_settings
 
+logger = logging.getLogger(__name__)
+settings = get_settings()
 
 class ResilientHttpClient(ABC):
     """Abstract base class for resilient HTTP clients."""
@@ -23,13 +25,11 @@ class ResilientHttpClient(ABC):
             self,
             base_url: str,
             timeout: float = 10.0,
-            max_retries: int = 3,
             default_headers: Optional[Dict[str, Any]] = None
     ):
         self._base_url = base_url.rstrip("/")
         self._default_headers = default_headers or {}
         self._timeout = timeout
-        self._max_retries = max_retries
         self._client: Optional[httpx.AsyncClient] = None
 
     async def __aenter__(self) -> "ResilientHttpClient":
@@ -55,7 +55,7 @@ class ResilientHttpClient(ABC):
 
     @retry(
         retry=retry_if_exception_type((httpx.ConnectError, httpx.ReadTimeout)),
-        stop=stop_after_attempt(3),
+        stop=stop_after_attempt(settings.market_data_max_retries),
         wait=wait_exponential(multiplier=0.5, min=1, max=10),
         before_sleep=before_sleep_log(logger, logging.WARNING),
         reraise=True,
