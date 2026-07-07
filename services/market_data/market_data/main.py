@@ -31,7 +31,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="Market Insights Platform - Market Data Service",
         description="Internal service for fetching and normalizing market data from multiple providers.",
-        version="2.0.0",
+        version="0.1.0",
         lifespan=lifespan,
     )
     app.include_router(market_router)
@@ -51,7 +51,7 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "market-data",
-        "version": "1.0.0",
+        "version": "0.1.0",
         "timestamp": datetime.datetime.now(datetime.UTC)
     }
 

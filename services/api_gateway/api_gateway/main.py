@@ -115,7 +115,7 @@ async def health_check(
     return HealthResponse(
         status="healthy",
         service="api-gateway",
-        version="1.0.0",
+        version="0.1.0",
         timestamp=datetime.datetime.now(datetime.UTC)
     )
 

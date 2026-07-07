@@ -25,7 +25,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="Market Insights Platform - Market Signal Service",
         description="Internal service for providing Market Insights data.",
-        version="1.0.0",
+        version="0.1.0",
         lifespan=lifespan,
     )
     app.include_router(signal_router)
@@ -45,7 +45,7 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "market-signal",
-        "version": "1.0.0",
+        "version": "0.1.0",
         "timestamp": datetime.datetime.now(datetime.UTC)
     }
 
