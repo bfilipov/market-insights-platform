@@ -4,6 +4,8 @@ from datetime import datetime
 import pytest
 from httpx import AsyncClient, ASGITransport
 
+from api_gateway.exceptions import ExternalServiceException  # noqa: E402
+
 # Set test environment variables BEFORE importing app modules
 os.environ["API_GATEWAY_HOST"] = "0.0.0.0"
 os.environ["API_GATEWAY_PORT"] = "8000"
@@ -20,7 +22,7 @@ from api_gateway.dependencies import (  # noqa: E402
     get_market_data_client,
 )
 from api_gateway.main import create_app  # noqa: E402
-from api_gateway.models.responses import MarketDataResponse  # noqa: E402
+from api_gateway.models.responses import MarketDataResponse, MarketSignal  # noqa: E402
 from api_gateway.services.market_service import MarketService  # noqa: E402
 from api_gateway.stores.user_store import UserStore  # noqa: E402
 
@@ -62,6 +64,33 @@ class MockMarketDataClient:
 
     async def close(self):
         pass
+
+
+class MockMarketSignalClient:
+    """Mock client for Service C."""
+
+    def __init__(self, fail=False):
+        self._fail = fail
+
+    async def fetch_signal(self, symbol, price_change_percentage_24h):
+        if self._fail:
+            raise ExternalServiceException("market-signal", "simulated failure")
+        if price_change_percentage_24h is None:
+            return None
+        return MarketSignal(signal="bullish", rule_description="mock rule")
+
+    async def close(self):
+        pass
+
+
+@pytest.fixture
+def mock_market_signal_client_success():
+    return MockMarketSignalClient(fail=False)
+
+
+@pytest.fixture
+def mock_market_signal_client_fail():
+    return MockMarketSignalClient(fail=True)
 
 
 @pytest.fixture

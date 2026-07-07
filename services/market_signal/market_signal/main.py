@@ -2,6 +2,8 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
+from starlette.responses import JSONResponse
 
 from market_signal.config import get_settings
 from market_signal.routers.signal import router as signal_router
@@ -18,12 +20,23 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down Market Signal Service...")
 
 
-app = FastAPI(
-    title="Market Insights Platform - Market Signal Service",
-    version="1.0.0",
-    lifespan=lifespan,
-)
-app.include_router(signal_router)
+def create_app() -> FastAPI:
+    app = FastAPI(
+        title="Market Insights Platform - Market Signal Service",
+        description="Internal service for providing Market Insights data.",
+        version="1.0.0",
+        lifespan=lifespan,
+    )
+    app.include_router(signal_router)
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_exception_handler(request, exc):
+        return JSONResponse(status_code=422, content={"detail": "Invalid request parameters", "errors": exc.errors()})
+
+    return app
+
+
+app = create_app()
 
 if __name__ == "__main__":
     import uvicorn

@@ -17,7 +17,10 @@ class MarketSignalClient(BaseServiceClient[MarketSignal]):
     def _get_api_key(self) -> str:
         return self._settings.services_internal_api_key
 
-    async def fetch_signal(self, symbol: str, price_change_percentage_24h: Optional[float]) -> Optional[MarketSignal]:
+    async def fetch_signal(
+            self, symbol: str,
+            price_change_percentage_24h: Optional[float]
+    ) -> Optional[MarketSignal]:
         if price_change_percentage_24h is None:
             return None
 
