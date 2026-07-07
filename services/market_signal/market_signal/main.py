@@ -1,3 +1,4 @@
+import datetime
 import logging
 from contextlib import asynccontextmanager
 
@@ -37,6 +38,17 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
+
+
+@app.get("/health", tags=["health"])
+async def health_check():
+    return {
+        "status": "healthy",
+        "service": "market-signal",
+        "version": "1.0.0",
+        "timestamp": datetime.datetime.now(datetime.UTC)
+    }
+
 
 if __name__ == "__main__":
     import uvicorn

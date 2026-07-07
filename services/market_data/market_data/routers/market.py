@@ -57,10 +57,3 @@ async def get_market_data(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.detail)
     except ExternalApiUnavailableException as e:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=e.detail)
-
-
-@router.get("/health", tags=["health"])
-async def health_check():
-    from datetime import datetime
-    return {"status": "healthy", "service": "market-data", "version": "2.0.0",
-            "timestamp": datetime.utcnow().isoformat()}

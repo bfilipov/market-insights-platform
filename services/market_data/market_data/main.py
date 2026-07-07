@@ -1,5 +1,6 @@
 """Market Data Service - Main entry point."""
 
+import datetime
 import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
@@ -43,6 +44,17 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
+
+
+@app.get("/health", tags=["health"])
+async def health_check():
+    return {
+        "status": "healthy",
+        "service": "market-data",
+        "version": "1.0.0",
+        "timestamp": datetime.datetime.now(datetime.UTC)
+    }
+
 
 if __name__ == "__main__":
     import uvicorn
