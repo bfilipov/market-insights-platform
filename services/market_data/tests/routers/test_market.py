@@ -1,3 +1,44 @@
+import pytest
+
+from market_data.enums import DataProvider
+from market_data.models.internal import InternalMarketDataResponse
+from market_data.services.market_data_service import MarketDataService
+
+
+class FakeProvider:
+    def __init__(self):
+        self.received_symbol = None
+
+    async def fetch_market_data(self, symbol):
+        self.received_symbol = symbol
+
+        return InternalMarketDataResponse(
+            symbol="btc",
+            name="Bitcoin",
+            current_price_usd=1.0,
+            data_source="test",
+        )
+
+
+@pytest.mark.asyncio
+async def test_market_data_service_resolves_btc_to_bitcoin(monkeypatch):
+    fake_provider = FakeProvider()
+
+    def fake_get_provider(provider):
+        return fake_provider
+
+    monkeypatch.setattr(
+        "market_data.services.market_data_service.get_provider",
+        fake_get_provider,
+    )
+
+    service = MarketDataService()
+
+    await service.get_market_data("BTC", provider=DataProvider.COINGECKO)
+
+    assert fake_provider.received_symbol == "bitcoin"
+
+
 async def test_health_check_no_auth_required(client):
     response = await client.get("/health")
     assert response.status_code == 200

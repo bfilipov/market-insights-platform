@@ -1,11 +1,12 @@
 """Market data router."""
 
 import logging
-from typing import Optional
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 
 from api_gateway.dependencies import get_market_service
+from api_gateway.enums import DataProvider
 from api_gateway.exceptions import (
     AssetNotFoundException,
     ExternalServiceException,
@@ -33,10 +34,18 @@ router = APIRouter(prefix="/api/v1", tags=["market"])
     summary="Get market data for an asset",
 )
 async def get_market_data(
-        symbol: str,
-        provider: Optional[str] = Query(
+        symbol: Annotated[
+            str,
+            Path(
+                min_length=1,
+                max_length=64,
+                pattern=r"^[A-Za-z0-9._-]+$",
+                description="Crypto symbol or provider asset id, e.g. BTC, ETH, bitcoin, ethereum",
+            ),
+        ],
+        provider: DataProvider | None = Query(
             None,
-            description="Override default data provider (e.g., 'coingecko', 'coincap')",
+            description="Override default data provider",
         ),
         current_user: User = Depends(validate_api_key),
         market_service: MarketService = Depends(get_market_service),
@@ -47,7 +56,8 @@ async def get_market_data(
             f"User '{current_user.name}' (id={current_user.id}) "
             f"requesting market data for '{symbol}'"
         )
-        return await market_service.get_market_data(symbol, provider=provider)
+        provider_value = provider.value if provider else None
+        return await market_service.get_market_insights(symbol, provider=provider_value)
     except AssetNotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
     except ServiceUnavailableException as e:
@@ -78,16 +88,26 @@ async def get_market_data(
     summary="Get market data with rule-based signals",
 )
 async def get_market_insights(
-        symbol: str,
-        provider: Optional[str] = Query(
-            None, description="Override default data provider (e.g., 'coingecko', 'coincap')"
+        symbol: Annotated[
+            str,
+            Path(
+                min_length=1,
+                max_length=64,
+                pattern=r"^[A-Za-z0-9._-]+$",
+                description="Crypto symbol or provider asset id, e.g. BTC, ETH, bitcoin, ethereum",
+            ),
+        ],
+        provider: DataProvider | None = Query(
+            None,
+            description="Override default data provider",
         ),
         current_user: User = Depends(validate_api_key),
         market_service: MarketService = Depends(get_market_service),
 ) -> MarketInsightsResponse:
     """Get market data augmented with a rule-based market signal."""
     try:
-        return await market_service.get_market_insights(symbol, provider=provider)
+        provider_value = provider.value if provider else None
+        return await market_service.get_market_insights(symbol, provider=provider_value)
     except AssetNotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
     except ServiceUnavailableException as e:

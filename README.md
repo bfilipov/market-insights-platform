@@ -90,31 +90,44 @@ The API Gateway will be available at http://localhost:8000.
     -H "Authorization: Bearer YOUR_ADMIN_KEY"
     ```
    
-2. Querying Market Data   
+2. Querying Market Data
 
-    Market data endpoints require a valid user API key.    
+    #### Asset identifiers
+ 
+    The public market endpoints accept either:
+ 
+   - a common crypto ticker alias, for example `BTC`, `ETH`, `DOGE`, `SOL`;
+   - a provider asset id, for example `bitcoin`, `ethereum`, `dogecoin`, `solana`.
+   
+    - Ticker aliases are resolved inside the Market Data Service before calling the external provider.
 
-    #### Fetch market data for a specific asset:
+    #### Fetch market data for a specific asset (Market data endpoints require a valid user API key. ):
+    ```
+   curl http://localhost:8000/api/v1/market/BTC \
+    -H "Authorization: Bearer YOUR_USER_API_KEY"
+   ```
+   
+    #### Exaple request with Asset Id instead of symbol:
     ```
    curl http://localhost:8000/api/v1/market/bitcoin \
     -H "Authorization: Bearer YOUR_USER_API_KEY"
    ```
     #### Override the default data provider:
     ```
-    curl "http://localhost:8000/api/v1/market/bitcoin?provider=coincap" \
+    curl "http://localhost:8000/api/v1/market/BTC?provider=coincap" \
     -H "Authorization: Bearer YOUR_USER_API_KEY"
    ```
    
     #### Fetch market data with rule-based signals:
     ```
-    curl "http://localhost:8000/api/v1/market/bitcoin/insights" \
+    curl "http://localhost:8000/api/v1/market/BTC/insights" \
     -H "Authorization: Bearer YOUR_USER_API_KEY"
    ```   
 
    #### Example response: 
     ```
     {
-      "symbol": "bitcoin",
+      "symbol": "btc",
       "name": "Bitcoin",
       "current_price_usd": 43250.75,
       "market_cap_usd": 847500000000,
@@ -134,7 +147,7 @@ The API Gateway will be available at http://localhost:8000.
    
    #### Missing Authentication (Expected: 401)
     ```
-    curl http://localhost:8000/api/v1/market/bitcoin
+    curl http://localhost:8000/api/v1/market/BTC
    ```
 
 ### Running Tests
