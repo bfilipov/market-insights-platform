@@ -1,6 +1,9 @@
 # ==========================================
 # Admin Router Tests
 # ==========================================
+from api_gateway.services.market_service import MarketService
+from tests.conftest import MockMarketDataClient
+
 
 async def test_admin_create_user_unauthorized(client):
     response = await client.post("/api/v1/admin/users", json={"name": "Test"})
@@ -132,17 +135,24 @@ async def test_market_insights_success_with_signal(client, user_store, mock_mark
 
 async def test_market_insights_graceful_degradation(client, user_store, mock_market_signal_client_fail):
     """Ensure the new endpoint still works if Service C fails."""
-    from api_gateway.dependencies import get_market_signal_client
-    client.app.dependency_overrides[get_market_signal_client] = lambda: mock_market_signal_client_fail
+    from api_gateway.dependencies import get_market_service
+
+    # Create a specific MarketService instance using the FAILING mock
+    failing_market_service = MarketService(
+        market_data_client=MockMarketDataClient(),
+        market_signal_client=mock_market_signal_client_fail  # Inject the failing one here
+    )
+
+    # Override the MarketService dependency for this specific test
+    client.app.dependency_overrides[get_market_service] = lambda: failing_market_service
 
     user = user_store.add_user(name="Insights User")
     headers = {"Authorization": f"Bearer {user.api_key}"}
 
     response = await client.get("/api/v1/market/bitcoin/insights", headers=headers)
+
     assert response.status_code == 200
     data = response.json()
     assert data["symbol"] == "bitcoin"
     assert data["market_signal"] is None
     assert data["disclaimer"] is None
-
-    client.app.dependency_overrides.pop(get_market_signal_client, None)

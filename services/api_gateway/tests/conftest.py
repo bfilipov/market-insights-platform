@@ -94,8 +94,12 @@ def mock_market_signal_client_fail():
 
 
 @pytest.fixture
-def mock_market_service():
-    return MarketService(market_data_client=MockMarketDataClient())
+def mock_market_service(mock_market_signal_client_success):
+    """Instantiate MarketService with BOTH required mock clients."""
+    return MarketService(
+        market_data_client=MockMarketDataClient(),
+        market_signal_client=mock_market_signal_client_success
+    )
 
 
 @pytest.fixture
@@ -109,4 +113,5 @@ async def client(settings, user_store, mock_market_service):
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        ac.app = app
         yield ac
