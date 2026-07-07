@@ -1,10 +1,10 @@
 import datetime
+from typing import Any
 
 from fastapi import APIRouter, Depends
 
 from api_gateway.middleware.auth import validate_api_key
 from api_gateway.models.responses import HealthResponse
-from api_gateway.models.user import User
 
 router = APIRouter()
 
@@ -18,9 +18,9 @@ router = APIRouter()
 async def health_check(
         # All endpoints in Service A must require a valid API key supplied as a bearer token: Authorization: Bearer
         # <key>.
-        current_user: User = Depends(validate_api_key),  #
+        _auth: Any = Depends(validate_api_key),
 ) -> HealthResponse:
-    """Health check endpoint — no authentication required."""
+    """Health check endpoint"""
     return HealthResponse(
         status="healthy",
         service="api-gateway",
